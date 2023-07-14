@@ -27,7 +27,7 @@ parser.add_argument('--Database',
                     default='')
 
 parser.add_argument('--Schema',
-                    help='Snowflake Database',
+                    help='Snowflake Schema',
                     default='')
 
 # assign arguments to vars

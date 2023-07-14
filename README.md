@@ -1,2 +1,2 @@
 # samples
-Some sample code
+Some sample code that is clean and self-contained

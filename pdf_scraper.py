@@ -8,32 +8,6 @@ import urllib.request
 import glob
 import tabula
 import snowflake.connector
-from snowflake.connector.pandas_tools import write_pandas
-
-
-def get_snowflake_connection():
-    '''
-    Can skip defining db, schema, tbl for the purposes of writing to pandas. 
-    Run these definitions as sql stmts following creation of the conn/cursor
-    '''
-    
-    if os.getenv('SNOWFLAKE_USERNAME'):
-        conn = snowflake.connector.connect(
-             account        = 'acct'
-            ,authenticator  = 'https://authsite.com'
-            ,user           = os.getenv('SNOWFLAKE_USERNAME')
-            ,password       = os.getenv('SNOWFLAKE_PASSWORD')
-            ,autocommit     = True
-        )
-    else:
-        conn = snowflake.connector.connect(
-             account        = 'acct'
-            ,authenticator  = 'externalbrowser'
-            ,user           = os.getenv('USERNAME')
-            ,autocommit     = True
-        )
-    return conn
-
 
 def df_write_pandas(conn, tbl, frame):
     '''1) import: from snowflake.connector.pandas_tools import write_pandas
@@ -145,7 +119,7 @@ def extract_report_data_t(pdf_file_nm, pg):
 
 
 # =============================================================================
-# run and write result dataframe to snowflake
+# run and write result to dataframe
 # =============================================================================
 if __name__ == '__main__':
     
@@ -180,11 +154,4 @@ if __name__ == '__main__':
     # create dataframe from scraped reports
     df = pd.concat(tabula_dic, ignore_index= True)
     
-    # write data to snowflake
-    if len(df) > 0:
-        df_write_pandas(conn,
-                        tbl = '_',
-                        frame = df)
-    else:
-        print('No new data to add')
             

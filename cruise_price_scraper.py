@@ -51,7 +51,6 @@ def get_snowflake_connection():
             ,autocommit     = True
         )
     else:
-        # Use local username with SSO via browser
         conn = snowflake.connector.connect(
              account        = ''
             ,authenticator  = ''

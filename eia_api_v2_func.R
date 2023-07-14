@@ -6,7 +6,6 @@ api_key = key
 
 eia_api = function(endpoint, series, api_key, freq){
   # form query using GET from httr package
-  
   if (freq == 'weekly'){
     start_dt = '2017-01-01'}
   else {

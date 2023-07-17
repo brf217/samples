@@ -38,9 +38,7 @@ snowflake_database = args.Database
 snowflake_schema = args.Schema    
 
 
-# =============================================================================
-# connect to snowflake
-# =============================================================================                                
+# connect to snowflake                            
 def get_snowflake_connection():
     if os.getenv('SNOWFLAKE_USERNAME'):
         conn = snowflake.connector.connect(

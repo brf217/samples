@@ -22,13 +22,13 @@ def master_query(conn, plays_api_numbers):
         all_api_numbers.extend(apis)
         
     df = pd.read_sql_query(f'''
-    SELECT 
-    ---bring in data from 'WellInfo' table
+        ---bring in data from 'WellInfo' table
+        SELECT 
              wi.[API Number] as api_number
             ,wi.[Year] as year
             ,wi.[Month] as month
             
-    ---bring in data from 'Production3Stream' table
+        ---bring in data from 'Production3Stream' table
             ,prod.[Production Forecast Group] as production_forecast_group
             
             ,max(CASE WHEN prod.[OilAndGasGroup]  = 'O' THEN 'Light Oil' 
@@ -37,7 +37,7 @@ def master_query(conn, plays_api_numbers):
             
             ,sum(prod.[production3stream]) as production3stream
             
-    ---bring in data from 'WellHeader' table
+        ---bring in data from 'WellHeader' table
             ,max(wh.[Completion Date]) as completion_date
             ,max(wh.[Production Start Date]) as production_start_date
             ,max(wh.[Reported Production Months]) as reported_production_months
@@ -54,30 +54,31 @@ def master_query(conn, plays_api_numbers):
             ,max(wh.[Proppant (Thousand pounds)]) as proppant_lbs
             ,max(wh.[Fracturing Liquid Volume]) as fracturing_liquid_volume
 
-      FROM [ShaleWellCube].[WellInfo] wi
+          FROM [ShaleWellCube].[WellInfo] wi
 
-      --- join wellinfo and production3stream table
-      JOIN [ShaleWellCube].[Production3Stream] prod
-          ON wi.[API Number] = prod.[API Number]
-          AND wi.[Month] = prod.[Month]
-          AND wi.[Year] = prod.[Year]
+          --- join wellinfo and production3stream table
+          JOIN [ShaleWellCube].[Production3Stream] prod
+              ON wi.[API Number] = prod.[API Number]
+              AND wi.[Month] = prod.[Month]
+              AND wi.[Year] = prod.[Year]
 
-      --- join wellinfo and wellheader table
-      JOIN [ShaleWellCube].[WellHeader] wh
-          ON wh.[API Number] = prod.[API Number]
+          --- join wellinfo and wellheader table
+          JOIN [ShaleWellCube].[WellHeader] wh
+              ON wh.[API Number] = prod.[API Number]
 
-       WHERE wi.[Year] >= 2015
-        AND prod.[OilAndGasGroup] in ('O', 'D', 'N')
-        AND wi.[API Number] in {tuple(all_api_numbers)}
+           WHERE wi.[Year] >= 2015
+            AND prod.[OilAndGasGroup] in ('O', 'D', 'N')
+            AND wi.[API Number] in {tuple(all_api_numbers)}
         
-    GROUP BY
+        GROUP BY
             wi.[API Number] 
             ,wi.[Year] 
             ,wi.[Month] 
             ,prod.[Production Forecast Group]
             ,prod.[OilAndGasGroup]
 
-    ORDER BY wi.[API Number], [Year], [Month]
+        ORDER BY 
+            wi.[API Number], [Year], [Month]
                                ''', conn)
     
     # clean up columns

@@ -1,6 +1,8 @@
+-----------------------------------------------------------------------------
 ---Date range of utilization and average monthly utilization by subscription
+-----------------------------------------------------------------------------
 
-WITH full_table AS(
+WITH full_table AS (
 	SELECT  
 		facts.date_dimension_id, 
 		facts.subscription_dimension_id, 
@@ -13,10 +15,10 @@ WITH full_table AS(
 		facts.daily_users,
 		facts.health,facts.health2,
 		facts.monthly_artifact_growth,
-		AVG(monthly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id) as avg_month_util_dtrange,
-		AVG(weekly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id) as avg_week_util_dtrange,
-		(facts.monthly_perc_user_utilization - AVG(monthly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id)) AS month_avg_dif,
-		(facts.weekly_perc_user_utilization - AVG(weekly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id)) AS wkly_avg_dif
+		AVG(monthly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id) avg_month_util_dtrange,
+		AVG(weekly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id) avg_week_util_dtrange,
+		(facts.monthly_perc_user_utilization - AVG(monthly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id)) month_avg_dif,
+		(facts.weekly_perc_user_utilization - AVG(weekly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id)) wkly_avg_dif
 	FROM 	
 		daily_health_metrics_facts facts
 	JOIN	

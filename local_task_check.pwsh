@@ -1,0 +1,32 @@
+#!/usr/bin/env pwsh
+
+# define output file 
+$output_file = 'U:/bin/local_task_sched_log.txt'
+
+# define scripts to test
+$script_list = "run_new_issue_script", "run_custom_yield_script", "run_oas_screen", "run_loan_downgrade_watch_srch"
+
+# clear output file 
+Clear-Content $output_file 
+
+# output each script to the output file
+foreach ($script in $script_list){
+	$output = Get-ScheduledTask $script | Get-ScheduledTaskInfo | Out-String 
+	echo $output  >> $output_file	
+}
+
+# create body of email that will be sent (regardless of failures found or not for now)
+$email_body = $email_body = Get-Content -Path $output_file | Select-String -Pattern 'LastRunTime|LastTaskResult|TaskName' | Out-String
+
+# look for failures in the output  (Last Task Results of 1)
+$failures = $email_body| Select-String -Pattern 'LastTaskResult     : [^0]' 
+
+if ($failures.Length -gt 0){Send-MailMessage -To 'brett.feeley217@gmail.com'`
+ -From 'brett.feeley217@gmail.com' -Subject 'Check Local Task Failures'`
+	  -SmtpServer 'mailext.server.com' -Body $email_body}
+
+else {Send-MailMessage -To 'brett.feeley217@gmail.com'
+	-From 'brett.feeley217@gmail.com' -Subject 'All Local Tasks Completed Successfully'`
+ -SmtpServer 'mailext.server.com' -Body $email_body}
+
+

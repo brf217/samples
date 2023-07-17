@@ -184,7 +184,8 @@ def clean_dataframe(df):
         s = df['end_dt'].str.split(pat='\n', expand=True)
         df['end_dt'] = s[0]
         df['nights'] = (
-            pd.to_datetime(df['end_dt'], errors='coerce', format="%b %d, %Y") - pd.to_datetime(df['start_dt'], errors='coerce', format="%b %d, %Y"))
+            pd.to_datetime(df['end_dt'], errors='coerce', format="%b %d, %Y") - pd.to_datetime(
+              df['start_dt'], errors='coerce', format="%b %d, %Y"))
         df['nights'] = [x.days for x in df.nights]
         
         # convert numeric columns
@@ -206,6 +207,9 @@ def clean_dataframe(df):
         df['write_date'] = dt.date.today()
 
         return df
+
+def retrieve_price(series):
+  return [x.split(' ')[0].replace('not', 'NA') for x in series]
     
     
 def query_current_timing():
@@ -271,14 +275,10 @@ if __name__ == '__main__':
             'ship':ship_name_list,
             'start_dt':sail_start,
             'end_dt': sail_end,
-            'interior_px':[
-                x.split(' ')[0].replace('not', 'NA') for x in interior_px],
-            'ocean_view_px':[
-                x.split(' ')[0].replace('not', 'NA') for x in ocean_view_px],
-            'balcony_px':[
-                x.split(' ')[0].replace('not', 'NA') for x in balcony_px],
-            'suite_px':[
-                x.split(' ')[0].replace('not', 'NA') for x in suite_px]
+            'interior_px':retrieve_price(interior_px),
+            'ocean_view_px':retrieve_price(ocean_view_px),
+            'balcony_px':retrieve_price(balcony_px),
+            'suite_px':retrieve_price(suite_px)
             })
         
         # clean up dataframe and convert coltypes

@@ -18,9 +18,10 @@ WITH full_table AS(
 		(facts.monthly_perc_user_utilization - AVG(monthly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id)) AS month_avg_dif,
 		(facts.weekly_perc_user_utilization - AVG(weekly_perc_user_utilization) OVER (PARTITION BY subscription_dimension_id)) AS wkly_avg_dif
 	FROM 	
-		daily_health_metrics_facts AS facts
+		daily_health_metrics_facts facts
 	JOIN	
-      		subscription_dimension AS subs ON subs.id = facts.subscription_dimension_id
+      		subscription_dimension subs 
+		ON subs.id = facts.subscription_dimension_id
 	WHERE 	
       		date_dimension_id BETWEEN '2018-04-30' AND '2018-06-01'
   		AND is_active = 't'

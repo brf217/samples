@@ -3,6 +3,9 @@
 # define output file 
 $output_file = 'U:/bin/local_task_sched_log.txt'
 
+# define email
+$email = 'address@domain.com'
+
 # define scripts to test
 $script_list = "run_new_issue_script", "run_custom_yield_script", "run_oas_screen", "run_loan_downgrade_watch_srch"
 
@@ -21,12 +24,12 @@ $email_body = $email_body = Get-Content -Path $output_file | Select-String -Patt
 # look for failures in the output  (Last Task Results of 1)
 $failures = $email_body| Select-String -Pattern 'LastTaskResult     : [^0]' 
 
-if ($failures.Length -gt 0){Send-MailMessage -To 'brett.feeley217@gmail.com'`
- -From 'brett.feeley217@gmail.com' -Subject 'Check Local Task Failures'`
+if ($failures.Length -gt 0){Send-MailMessage -To $email
+ -From $email -Subject 'Check Local Task Failures'
 	  -SmtpServer 'mailext.server.com' -Body $email_body}
 
-else {Send-MailMessage -To 'brett.feeley217@gmail.com'
-	-From 'brett.feeley217@gmail.com' -Subject 'All Local Tasks Completed Successfully'`
+else {Send-MailMessage -To $email
+	-From $email -Subject 'All Local Tasks Completed Successfully'`
  -SmtpServer 'mailext.server.com' -Body $email_body}
 
 

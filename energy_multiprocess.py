@@ -58,13 +58,13 @@ def master_query(conn, plays_api_numbers):
 
       --- join wellinfo and production3stream table
       JOIN [ShaleWellCube].[Production3Stream] prod
-      ON wi.[API Number] = prod.[API Number]
-      AND wi.[Month] = prod.[Month]
-      AND wi.[Year] = prod.[Year]
+          ON wi.[API Number] = prod.[API Number]
+          AND wi.[Month] = prod.[Month]
+          AND wi.[Year] = prod.[Year]
 
       --- join wellinfo and wellheader table
       JOIN [ShaleWellCube].[WellHeader] wh
-      ON wh.[API Number] = prod.[API Number]
+          ON wh.[API Number] = prod.[API Number]
 
        WHERE wi.[Year] >= 2015
         AND prod.[OilAndGasGroup] in ('O', 'D', 'N')
@@ -108,6 +108,37 @@ def loop_args(df):
     return args
 
 
+def get_arps_vals(df):
+    if c == 'Light Oil':
+        ip = max(df['production3stream']/30)
+        decl =  max(df['estimated_well_oil_initial_decline'])
+        hyp =  max(df['estimated_well_oil_hyperbolic_factor'])
+    elif c == 'Dry Gas' or c == 'NGL':
+        ip = max(df['production3stream']/30)
+        decl = max(df['estimated_well_gas_initial_decline'])
+        hyp = max(df['estimated_well_gas_hyperbolic_factor'])
+    else:
+        raise ValueError('no arps values found')
+    return [ip, decl, hyp]
+
+
+def month_serial(m):
+    if  m == first_record_dt:
+        mon = 0 
+    else:
+        mon = (pd.Timestamp(m) - pd.Timestamp(first_record_dt)) / np.timedelta64(1, 'M')
+        mon = int(round(mon,0))
+    return mon
+
+
+def arps_model(row):
+    if row['days_after_pk'] == 0:
+        return row['rys_daily_prod_boe']
+    else:
+        return  arps_vals[0]*(
+                1+(arps_vals[2]*arps_vals[1]*row['days_after_pk']))**(-1/arps_vals[2])
+
+
 def fitter(api_number, df, c):
     try:
         # filter to one api number and fuel type
@@ -140,31 +171,10 @@ def fitter(api_number, df, c):
             df_fit['production3stream'] == max(
                 df_fit['production3stream'])]['record_date'].values[0]
         
-        # create function to get arps values based on the type of fuel chose in vars 
-        def get_arps_vals(df):
-            if c == 'Light Oil':
-                ip = max(df['production3stream']/30)
-                decl =  max(df['estimated_well_oil_initial_decline'])
-                hyp =  max(df['estimated_well_oil_hyperbolic_factor'])
-            elif c == 'Dry Gas' or c == 'NGL':
-                ip = max(df['production3stream']/30)
-                decl = max(df['estimated_well_gas_initial_decline'])
-                hyp = max(df['estimated_well_gas_hyperbolic_factor'])
-            else:
-                raise ValueError('no arps values found')
-            return [ip, decl, hyp]
-        
+        # get arps values based on the type of fuel chose in vars 
         arps_vals = get_arps_vals(df_fit)
         
-        # get serial months operating for TC
-        def month_serial(m):
-            if  m == first_record_dt:
-                mon = 0 
-            else:
-                mon = (pd.Timestamp(m) - pd.Timestamp(first_record_dt)) / np.timedelta64(1, 'M')
-                mon = int(round(mon,0))
-            return mon
-        
+        # get serial months operating for Tc
         df_fit['month_serial'] = df_fit['record_date'].apply(month_serial)
             
         # extend date series and concat to original frame
@@ -200,12 +210,6 @@ def fitter(api_number, df, c):
         df_fit['rys_daily_prod_boe'] = df_fit['production3stream'] / df_fit['days_in_mo']
         
         # run model and convert rystad production to daily for check
-        def arps_model(row):
-            if row['days_after_pk'] == 0:
-                return row['rys_daily_prod_boe']
-            else:
-                return  arps_vals[0]*(
-                        1+(arps_vals[2]*arps_vals[1]*row['days_after_pk']))**(-1/arps_vals[2])
         df_fit['arps_decline'] = df_fit.apply(arps_model, axis = 1)
         
         # make a column for actual and fcst combo (take any rystad # before using arps)

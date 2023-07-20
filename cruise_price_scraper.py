@@ -208,6 +208,7 @@ def clean_dataframe(df):
 
         return df
 
+
 def retrieve_price(series):
   return [x.split(' ')[0].replace('not', 'NA') for x in series]
     

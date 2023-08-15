@@ -10,11 +10,6 @@ import tabula
 import snowflake.connector
 
 def df_write_pandas(conn, tbl, frame):
-    '''1) import: from snowflake.connector.pandas_tools import write_pandas
-        write full dataframe to pandas vs. doing row-wise
-       2) connect outside function to keep alive
-       3) args to snowflake need to be in caps (tbl, etc.) 
-        '''
     # create a local frame copy
     write_frame = frame.copy()
     

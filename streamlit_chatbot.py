@@ -4,11 +4,15 @@ from snowflake.snowpark.context import get_active_session
 import datetime as dt
 from snowflake.cortex import Complete
 
-# basic config
 today = dt.date.today()
+
 st.set_page_config(layout="wide")
+
 MODELS = [
-    "mistral-large"
+    "mistral-large",
+    "snowflake-arctic",
+    "llama3.1-405b",
+    "reka-core"
 ]
 
 def init_messages():
@@ -171,7 +175,8 @@ def create_prompt(user_question):
             saved as a text field - this is not the same as callable or non-callable,
             Commit Date in mm/dd hh:mm format converted to MST timezone,
             Use of Procceds(UoP) in 5 words or less - this is what the money will be used for,
-            Tenor converted to number of years to one decimal and include YR suffix,
+            Tenor converted to number of years to one decimal and include YR suffix.  If needed the tenor is
+            maturity-today in years rounded to one decimal place,
             Redemption Feature as text,
             Ratings as text,
             First Lead underwriter as text.

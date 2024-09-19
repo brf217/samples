@@ -15,6 +15,7 @@ MODELS = [
     "reka-core"
 ]
 
+
 def init_messages():
     """
     Initialize the session state for chat messages. If the session state indicates that the
@@ -23,6 +24,7 @@ def init_messages():
     """
     if st.session_state.clear_conversation or "messages" not in st.session_state:
         st.session_state.messages = []
+
 
 def init_service_metadata():
     """
@@ -91,6 +93,7 @@ def get_chat_history():
     )
     return st.session_state.messages[start_index : len(st.session_state.messages) - 1]
 
+
 def complete(model, prompt):
     """
     Generate a completion for the given prompt using the specified model.
@@ -135,6 +138,7 @@ def make_chat_history_summary(chat_history, question):
     summary = complete(st.session_state.model_name, prompt)
 
     return summary
+
 
 def create_prompt(user_question):
     """
